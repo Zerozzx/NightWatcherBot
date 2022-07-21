@@ -4,7 +4,7 @@ from khl.card import CardMessage, Card,Module,Element,Types,Struct
 import logging,json,random,re
 from datetime import datetime,timedelta
 from XJ import XJ,MoodType
-
+import requests,io
 # init Bot
 with open('Config/Token.json','r',encoding='utf-8') as TokenFile:
     config = json.load(TokenFile)
@@ -46,7 +46,8 @@ bot.add_event_handler(EventTypes.DELETED_MESSAGE,delete_catcher)
 # invoke this via saying `/hello @{bot_name}` in channel
 @bot.command(name='你好', rules=[Rule.is_bot_mentioned(bot)])
 async def Hi(msg: Message, mention_str: str):
-    await msg.reply(f'你好！，你正在@ {mention_str}')
+    url =await url_to_asset("https://img1.baidu.com/it/u=303339291,1810026973&fm=253&fmt=auto&app=120&f=JPEG?w=529&h=500")
+    await msg.reply(url)
 
 # is_mention_all = 任何用户被 @
 @bot.command(rules=[Rule.is_mention_all])
@@ -130,27 +131,20 @@ async def reaction_reminder(b:Bot,event:Event):
 '''
 
 # 消息检测
-XJBot = XJ(MoodType.NORMAL)
-@bot.on_message(MessageTypes.TEXT)
+XJBot = XJ(bot,MoodType.NORMAL)
+@bot.on_message(MessageTypes.FILE)
 async def DealMessage(msg: Message):
-    Response = XJBot.FindReply(msg.content)
+    Response = await XJBot.FindReply(msg)
     if Response != None:
         await msg.reply(Response)
-    '''
-    if re.search(r'^(小姬*)([！!. \n]?$)',msg.content): # 如果单纯只是叫一下她
-        await msg.reply(f"小姬收到！")
-    elif re.search(r'^(小姬*)',msg.content):# 如果你在呼叫小姬
-        if re.search(r'天气',msg.content):
-            await msg.reply(f"我觉得应该是非常热的天气吧")
-        elif re.search(r'玩',msg.content):
-            await msg.reply(f"我觉得吧，Apex 最好玩")
-        elif re.search(r'[(智障)(傻逼)(SB)(垃圾)(2B)]',msg.content):
-            restr = re.search(r'[(智障)(傻逼)(SB)(垃圾)(2B)]',msg.content).group()
-            await msg.reply(f"你才是{restr}!，*￥@￥%￥@%……*（&*&……*&xxx")
-        else:
-            await msg.reply(f"阿巴阿巴阿巴...")
-    '''
 
+
+async def url_to_asset(pic_url):
+    img_src = pic_url
+    response = requests.get(img_src)
+    img = io.BytesIO(response.content)
+    asset_url = (await bot.create_asset(img))
+    return asset_url
 
 # everything done, go ahead now!
 logging.basicConfig(level='INFO')
