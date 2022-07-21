@@ -1,8 +1,9 @@
-from khl import Bot, Message,EventTypes,Event
+from khl import Bot, Message,EventTypes,Event,MessageTypes
 from khl.command import Rule
 from khl.card import CardMessage, Card,Module,Element,Types,Struct
-import logging,json,random
+import logging,json,random,re
 from datetime import datetime,timedelta
+from XJ import XJ,MoodType
 
 # init Bot
 with open('Config/Token.json','r',encoding='utf-8') as TokenFile:
@@ -23,8 +24,9 @@ async def AI(msg: Message):
 async def roll(msg:Message, t_min:int, t_max:int, n:int=1):
     result = [random.randint(t_min, t_max) for i in range(n)]
     await msg.reply(f'你的点数:{result}',True, is_temp = True)
-    await msg.ctx.channel.send(f'你的点数:{result}', temp_target_id=msg.author.id)
+    #await msg.ctx.channel.send(f'你的点数:{result}', temp_target_id=msg.author.id)
 
+'''
 # register event
 @bot.on_event(EventTypes.UPDATED_MESSAGE)
 async def update_reminder(b:Bot,event:Event):
@@ -37,6 +39,7 @@ async def delete_catcher(b:Bot, event:Event):
     await b.send(channel,f'消息 {event.body["msg_id"]} 被删除了...')
 
 bot.add_event_handler(EventTypes.DELETED_MESSAGE,delete_catcher)
+'''
 
 # 条件命令
 # register command and add a rule
@@ -116,6 +119,7 @@ async def struct(msg: Message):
 async def print_btn_value(_: Bot, e: Event):
     print(f'''{e.body['user_info']['nickname']} took the {e.body['value']} pill''')
 
+'''
 # 观测回应
 @bot.on_event(EventTypes.ADDED_REACTION)
 async def reaction_reminder(b:Bot,event:Event):
@@ -123,6 +127,30 @@ async def reaction_reminder(b:Bot,event:Event):
     channel = await b.fetch_public_channel(event.body['channel_id']) 
     # send a messge to inform user at current channel
     await b.send(channel,f"you add reaction{event.body['emoji']['id']}") 
+'''
+
+# 消息检测
+XJBot = XJ(MoodType.NORMAL)
+@bot.on_message(MessageTypes.TEXT)
+async def DealMessage(msg: Message):
+    Response = XJBot.FindReply(msg.content)
+    if Response != None:
+        await msg.reply(Response)
+    '''
+    if re.search(r'^(小姬*)([！!. \n]?$)',msg.content): # 如果单纯只是叫一下她
+        await msg.reply(f"小姬收到！")
+    elif re.search(r'^(小姬*)',msg.content):# 如果你在呼叫小姬
+        if re.search(r'天气',msg.content):
+            await msg.reply(f"我觉得应该是非常热的天气吧")
+        elif re.search(r'玩',msg.content):
+            await msg.reply(f"我觉得吧，Apex 最好玩")
+        elif re.search(r'[(智障)(傻逼)(SB)(垃圾)(2B)]',msg.content):
+            restr = re.search(r'[(智障)(傻逼)(SB)(垃圾)(2B)]',msg.content).group()
+            await msg.reply(f"你才是{restr}!，*￥@￥%￥@%……*（&*&……*&xxx")
+        else:
+            await msg.reply(f"阿巴阿巴阿巴...")
+    '''
+
 
 # everything done, go ahead now!
 logging.basicConfig(level='INFO')
