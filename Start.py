@@ -3,7 +3,7 @@ from khl.command import Rule
 from khl.card import CardMessage, Card,Module,Element,Types,Struct
 import logging,json,random,re
 from datetime import datetime,timedelta
-from XJ import XJ,MoodType
+from XJ.XJ import XJ,MoodType
 import requests,io
 # init Bot
 with open('Config/Token.json','r',encoding='utf-8') as TokenFile:
